@@ -11,17 +11,34 @@ const putThresholds = async (
     newTemperatureThresholds: Threshold,
     newDissolvedOxygenThresholds: Threshold,
     setThresholdsToEdit: Dispatch<SetStateAction<Thresholds | undefined>>,
-    setUpdatedThresholds: Dispatch<SetStateAction<boolean>>
+    setUpdatedThresholds: Dispatch<SetStateAction<boolean>>,
+    setFailedToUpdate: Dispatch<SetStateAction<boolean>>
 ) => {
         
     try {
-        if(newPHThresholds.minimumAllowedValue < 0 || newPHThresholds.maximumAllowedValue > 14)
-            throw new Error("pH Threshold must be between 0 and 14")
-        if(newTemperatureThresholds.minimumAllowedValue < 9 || newTemperatureThresholds.maximumAllowedValue > 50)
-            throw new Error("Temperature Threshold must be between 9 and 50")
-        if(newDissolvedOxygenThresholds.minimumAllowedValue < 0 
-            || newDissolvedOxygenThresholds.maximumAllowedValue > 1)
-            throw new Error("Dissolved Oxygen Threshold must be between 0% and 100%")
+        if(newPHThresholds.minimumAllowedValue < 0 || newPHThresholds.minimumAllowedValue > 14 
+            || newPHThresholds.maximumAllowedValue < 0
+            || newPHThresholds.maximumAllowedValue > 14) {
+                setFailedToUpdate(true);
+                setTimeout(() => {setFailedToUpdate(false)}, 3000);
+                throw new Error("pH Threshold must be between 0 and 14")
+            }
+        if(newTemperatureThresholds.minimumAllowedValue < 9
+            || newTemperatureThresholds.minimumAllowedValue > 50
+            || newTemperatureThresholds.maximumAllowedValue < 9  
+            || newTemperatureThresholds.maximumAllowedValue > 50) {
+                setFailedToUpdate(true);
+                setTimeout(() => {setFailedToUpdate(false)}, 3000);
+                throw new Error("Temperature Threshold must be between 9 and 50")
+            }
+        if( newDissolvedOxygenThresholds.minimumAllowedValue < 0 
+            || newDissolvedOxygenThresholds.minimumAllowedValue > 1 
+            || newDissolvedOxygenThresholds.maximumAllowedValue < 0
+            || newDissolvedOxygenThresholds.maximumAllowedValue > 1) {
+                setFailedToUpdate(true);
+                setTimeout(() => {setFailedToUpdate(false)}, 3000);
+                throw new Error("Dissolved Oxygen Threshold must be between 0% and 100%")
+            }
         
             const response = await fetch(`http://localhost:3001/api/vessels/${vesselId}/thresholds`, {
             method: "PUT",
@@ -48,7 +65,7 @@ const putThresholds = async (
                 temperatureThreshold: newTemperatureThresholds,
                 dissolvedOxygenThreshold: newDissolvedOxygenThresholds
             });
-            setTimeout(() => {setUpdatedThresholds(false)}, 2000);
+            setTimeout(() => {setUpdatedThresholds(false)}, 3000);
         } else {
             console.log("NOT OKAY");
             const data = await response.json();
@@ -147,7 +164,7 @@ export function UpdateThresholdsFormBody(props: UpdateThresholdsFormBodyProps) {
                             const stringTyped: string = (event.target.value);
                             const newDissolvedOxygenThresholds: Threshold = {
                                 metricName: 'dissolvedOxygen',
-                                minimumAllowedValue: (stringTyped=='' ? props.thresholdsToEdit.dissolvedOxygenThreshold.minimumAllowedValue : Number(stringTyped)),
+                                minimumAllowedValue: (stringTyped=='' ? props.thresholdsToEdit.dissolvedOxygenThreshold.minimumAllowedValue : Number(stringTyped)/100),
                                 maximumAllowedValue: props.newDissolvedOxygenThresholds.maximumAllowedValue
                             }
                             props.setNewDissolvedOxygenThresholds(newDissolvedOxygenThresholds);
@@ -162,7 +179,7 @@ export function UpdateThresholdsFormBody(props: UpdateThresholdsFormBodyProps) {
                             const newDissolvedOxygenThresholds: Threshold = {
                                 metricName: 'dissolvedOxygen',
                                 minimumAllowedValue: props.newDissolvedOxygenThresholds.minimumAllowedValue,
-                                maximumAllowedValue: (stringTyped=='' ? props.thresholdsToEdit.dissolvedOxygenThreshold.maximumAllowedValue : Number(stringTyped))
+                                maximumAllowedValue: (stringTyped=='' ? props.thresholdsToEdit.dissolvedOxygenThreshold.maximumAllowedValue : Number(stringTyped)/100)
                             }
                             props.setNewDissolvedOxygenThresholds(newDissolvedOxygenThresholds);
                         }}
@@ -171,6 +188,7 @@ export function UpdateThresholdsFormBody(props: UpdateThresholdsFormBodyProps) {
             </div>
             <div>
                 <span>{props.updatedThresholds && 'Updated thresholds!'}</span>
+                <span>{props.failedToUpdate && 'Failed to update thresholds!'}</span>
                 <button className='update-thresholds-input-button mx-2'
                     onClick={() => {
                         putThresholds(
@@ -179,7 +197,8 @@ export function UpdateThresholdsFormBody(props: UpdateThresholdsFormBodyProps) {
                             props.newTemperatureThresholds,
                             props.newDissolvedOxygenThresholds,
                             props.setThresholdsToEdit,
-                            props.setUpdatedThresholds
+                            props.setUpdatedThresholds,
+                            props.setFailedToUpdate
                         );
                     }}> Update </button>
                 <button className='update-thresholds-input-button'

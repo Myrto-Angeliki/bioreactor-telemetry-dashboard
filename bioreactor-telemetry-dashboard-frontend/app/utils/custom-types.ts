@@ -63,4 +63,6 @@ export type UpdateThresholdsFormBodyProps = {
   setThresholdsToEdit: Dispatch<SetStateAction<Thresholds | undefined>>,
   updatedThresholds: boolean,
   setUpdatedThresholds: Dispatch<SetStateAction<boolean>>
+  failedToUpdate: boolean,
+  setFailedToUpdate: Dispatch<SetStateAction<boolean>>
 }

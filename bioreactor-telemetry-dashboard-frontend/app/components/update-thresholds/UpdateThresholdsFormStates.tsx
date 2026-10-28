@@ -16,6 +16,7 @@ export const UpdateThresholdsFormStates = (props: UpdateThresholdsFormProps) => 
         return <p>404: Thresholds not found</p>
 
     const [updatedThresholds, setUpdatedThresholds] = useState(false);
+    const [failedToUpdate, setFailedToUpdate] = useState(false);
 
     const [newPHThresholds, setNewPHThresholds] 
     = useState<Threshold>({
@@ -76,6 +77,8 @@ export const UpdateThresholdsFormStates = (props: UpdateThresholdsFormProps) => 
             setThresholdsToEdit={props.setThresholdsToEdit}
             updatedThresholds={updatedThresholds}
             setUpdatedThresholds={setUpdatedThresholds}
+            failedToUpdate={failedToUpdate}
+            setFailedToUpdate={setFailedToUpdate}
         />
     )
 }
