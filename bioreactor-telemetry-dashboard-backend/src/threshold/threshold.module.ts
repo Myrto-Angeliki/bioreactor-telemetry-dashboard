@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ThresholdService } from './threshold.service.js';
 
 @Module({
-    providers: [ThresholdService]
+    providers: [ThresholdService],
+    exports: [ThresholdService]
 })
 export class ThresholdModule {}
