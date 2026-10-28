@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { metricNames, SensorMetric, Telemetry, Thresholds, VESSEL_COUNT } from "../utils/custom-types";
-import { fetchData } from "../utils/helper-funcs";
+import { delay, fetchData } from "../utils/helper-funcs";
 import VesselTelemetry from "./VesselTelemetry";
 
 function getVesselThresholds(allThresholds: Thresholds[],
@@ -10,33 +10,24 @@ function getVesselThresholds(allThresholds: Thresholds[],
     const vesselThresholds = allThresholds.find((vesselThresholds) => {
         return vesselThresholds.vesselId === vesselId
     });
-    if (vesselThresholds != undefined)
-        {
-            return vesselThresholds;
-        } 
+    if (vesselThresholds != undefined) {
+        return vesselThresholds;
+    }
     else return undefined;
 }
 
-function handleThresholdsEditClick(isModalOpen: boolean, setIsModalOpen: (val: boolean) => void,
-    setThresholdsToEdit: (thresholds: Thresholds | undefined) => void, 
-    thresholdsTemp: Thresholds | undefined) 
-    {
-        if(!isModalOpen && thresholdsTemp != undefined) setThresholdsToEdit(thresholdsTemp);
-        setIsModalOpen(!isModalOpen)
-    }
-                                
+
+
 
 type TelemetryDataGridProps = {
     startTime: number
-    setIsModalOpen: (val: boolean) => void,
-    isModalOpen: boolean,
-    setThresholdsToEdit: (thresholds: Thresholds | undefined) => void
 }
 
-export default function TelemetryDataGrid({ startTime, setThresholdsToEdit, setIsModalOpen, isModalOpen }: TelemetryDataGridProps) {
+export default function TelemetryDataGrid(props: TelemetryDataGridProps) {
     const [telemetryData, setTelemetryData] = useState<Telemetry[]>([]);
     const [sensorMetrics, setSensorMetrics] = useState<SensorMetric[]>([]);
     const [allThresholds, setAllThresholds] = useState<Thresholds[]>([]);
+    const [thresholdsToEdit, setThresholdsToEdit] = useState<Thresholds>();
 
     useEffect(() => {
         const fetchTelemetryData = async () => {
@@ -49,7 +40,8 @@ export default function TelemetryDataGrid({ startTime, setThresholdsToEdit, setI
                     `http://localhost:3001/api/vessels/BIO-00${i + 1}/telemetry`);
 
                 const isoDate: Date = new Date(telemetry.timestamp);
-                const timestampSec: number = Math.round((isoDate.getTime() - startTime)) / 1000; //Time in secs
+                const timestampSec: number = Math.round(
+                    (isoDate.getTime() - props.startTime)) / 1000; //Time in secs
                 const metricValues: number[] = [
                     telemetry.pH, telemetry.temperature, telemetry.dissolvedOxygen];
 
@@ -63,6 +55,7 @@ export default function TelemetryDataGrid({ startTime, setThresholdsToEdit, setI
                     })
                 }
                 setSensorMetrics(sensorMetricsReceived);
+                //await delay(1000);
             }
             setTelemetryData(telemetryDataResponse);
         };
@@ -76,7 +69,9 @@ export default function TelemetryDataGrid({ startTime, setThresholdsToEdit, setI
                 else console.log("error");
             }
         }, 3000);
+    }, []);
 
+    useEffect(() => {
         const fetchThresholdData = async () => {
             const thresholdsByVessel: Thresholds[] = [];
             for (let i = 0; i < VESSEL_COUNT; i++) {
@@ -84,37 +79,28 @@ export default function TelemetryDataGrid({ startTime, setThresholdsToEdit, setI
                     `http://localhost:3001/api/vessels/BIO-00${i + 1}/thresholds`);
 
                 thresholdsByVessel.push(thresholds);
-                //console.log(`TelemetryDataGrid: ${thresholds}`);
             }
             setAllThresholds(thresholdsByVessel);
         }
         fetchThresholdData()
-    }, []);
+    }, [thresholdsToEdit])
 
     return (
         <div>
             {telemetryData.map((telemetry) => {
-                const thresholdsTemp: Thresholds | undefined = 
+                const thresholdsTemp: Thresholds | undefined =
                     getVesselThresholds(allThresholds, telemetry.vesselId);
                 return (
                     <div key={telemetry.vesselId} >
                         <h2 className="text-center pt-12 text-2xl">
                             Sensor metrics for vessel: {telemetry.vesselId}
                         </h2>
-                        <button
-                            className="cursor-pointer rounded-full bg-olive-800 text-olive-300 p-4 mx-2 right-0"
-                            onClick={() => handleThresholdsEditClick(isModalOpen, setIsModalOpen,
-                                setThresholdsToEdit, thresholdsTemp
-                            )}
-                            >
-                        <span>Edit Thresholds</span>
-                        </button>
+
                         <VesselTelemetry
                             thresholds={thresholdsTemp}
                             sensorMetrics={sensorMetrics}
-                            setIsModalOpen={setIsModalOpen}
-                            isModalOpen={isModalOpen}
-                            setThresholdsToEdit={() => setThresholdsToEdit}
+                            thresholdsToEdit={thresholdsToEdit}
+                            setThresholdsToEdit={setThresholdsToEdit}
                         />
                     </div>
                 );

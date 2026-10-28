@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "./sidebar/SideBar";
 import TelemetryDataGrid from "./TelemetryDataGrid";
 import { Thresholds } from "../utils/custom-types";
-import { UpdateThresholdsModal } from "./UpdateThresholdsModal";
+import { UpdateThresholdsModal } from "./update-thresholds/UpdateThresholdsModal";
 
 function returnCurrentTime(): number {
     const num: number = new Date().getTime()
@@ -13,13 +13,11 @@ function returnCurrentTime(): number {
 
 export function ContentWrapper() {
     const [startTime, setStartTime] = useState(0);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [thresholdsToEdit, setThresholdsToEdit] = useState<Thresholds>();
 
     useEffect(() => {
         const initStartTime = async () => {
             setStartTime(Date.now())
-            await setTimeout('', 15000);
+            await setTimeout('', 5000);
         }
         initStartTime();
     }, [])
@@ -30,16 +28,10 @@ export function ContentWrapper() {
                 Welcome to the Bioreactor Telemetry Dashboard
             </h1>
             <div>
-                <UpdateThresholdsModal 
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  thresholds={thresholdsToEdit} 
-                  setThresholdsToEdit={setThresholdsToEdit} />
                 <Sidebar />
-                <TelemetryDataGrid startTime={returnCurrentTime()} 
-                setIsModalOpen={setIsModalOpen} 
-                isModalOpen={isModalOpen}
-                setThresholdsToEdit={() => setThresholdsToEdit} />
+                <TelemetryDataGrid 
+                    startTime={returnCurrentTime()} 
+                />
             </div>
         </>
     )

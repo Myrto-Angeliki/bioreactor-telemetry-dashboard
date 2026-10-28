@@ -5,3 +5,6 @@ export async function fetchData<T>(request: string): Promise<T> {
   return await response.json();
 }
 
+export function delay(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}

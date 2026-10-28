@@ -1,42 +1,42 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import './Sidebar.css';
 import { AuditLogs } from '@/app/utils/custom-types';
 import { fetchData } from '@/app/utils/helper-funcs';
 import { AuditLog } from './AuditLog';
+import './Sidebar.css';
+import { json } from 'stream/consumers';
 
 export default function Sidebar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [sidebarWidth, setSidebarWidth] = useState(16);
     const [auditLogs, setAuditLogs] = useState<AuditLogs[]>([]);
 
     useEffect(() => {
         const handleSidebar = async () => {
             if (isOpen) {
-                setSidebarWidth(16);
-
                 const auditLogData = await fetchData<AuditLogs[]>(
                     'http://localhost:3001/api/audit-logs');
 
-                console.log(auditLogs);
+                //console.log(JSON.stringify(auditLogData));
 
-                if (auditLogs.length > 10)
-                    setAuditLogs(auditLogData.splice(-10));
+                if (auditLogs.length > 10){
+                    setAuditLogs((auditLogData.splice(-10,-1).toReversed()));
+                }
                 else
-                    setAuditLogs(auditLogData);
+                    setAuditLogs(auditLogData.toReversed());
             }
             else {
-                setSidebarWidth(0);
                 setAuditLogs([]);
             }
         }
         handleSidebar();
     }, [isOpen]);
 
+
     return (
-        <section className="flex pt-8">
-            <div className={isOpen ? "border-2": "border-0"}>
+        <section className="flex pt-8 ">
+            <div className={`sidebar ${isOpen ? 'sidebarOpen' : 'sidebarClosed'}`}>
+                <h1 className="text-3xl font-bold py-5 underline decoration-2">10 Most recent threshold changes</h1>
                 {auditLogs.map((auditLog) => {
                     return (
                         <AuditLog key={auditLog.timestamp}
@@ -49,12 +49,15 @@ export default function Sidebar() {
             </div>
             <div >
                 <button
-                    className="cursor-pointer rounded-full bg-olive-600 text-olive-200 p-4 mx-2"
+                    className= {
+                        `cursor-pointer rounded-full fixed border-2
+                        z-900 ${isOpen ? 'close-btn-open' : 'close-btn-closed'} 
+                        ${isOpen ? 'bg-red-900' : 'bg-olive-600'}
+                        ${isOpen ? 'text-red-100' : 'text-olive-200'}`
+                    }
                     onClick={() => setIsOpen(!isOpen)}
-                    style={{
-                        left: isOpen ? `calc(${sidebarWidth}px + 20px)` : '20px'
-                    }} >
-                    {isOpen ? (<span>Close Logs</span>)
+                    >
+                    {isOpen ? (<span>&times;</span>)
                         : (<span>Show Logs</span>)}
                 </button>
             </div>

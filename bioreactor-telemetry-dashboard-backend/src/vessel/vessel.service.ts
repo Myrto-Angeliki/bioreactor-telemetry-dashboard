@@ -91,7 +91,7 @@ export class VesselService {
                 updateThresholdsDto.newThresholds[i]
             );
         }
-        const newThreshHoldValues = vessel.getThresholds();
+        const newThreshHoldValues = this.getThresholdsCopy(vessel.getThresholds());
         this.auditLogService.addAuditLog(oldThreshHoldValues, newThreshHoldValues);
         
         return newThreshHoldValues;

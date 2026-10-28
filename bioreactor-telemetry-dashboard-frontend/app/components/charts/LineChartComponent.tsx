@@ -1,7 +1,8 @@
 "use client";
 
 import { Label, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { SensorMetric, Threshold } from '../utils/custom-types'
+import { SensorMetric, Threshold } from '../../utils/custom-types'
+import { CustomTooltip } from './CustomTooltip';
 
 type LineChartComponentProps = {
     metricData: {
@@ -10,17 +11,6 @@ type LineChartComponentProps = {
         isInsideThreshold: boolean
     }
 }
-
-interface ValidLineProps {
-    isInsideThreshold: boolean
-}
-
-const ValidLine = ({ isInsideThreshold}: ValidLineProps) => {
-            return <Line type="monotone" dataKey="value" stroke="#8884d8"
-                    dot={{r:4,  fill:isInsideThreshold ? "#65ff65" : "#ff4444", strokeWidth:1}} />
-
-    };
-
 
 export function LineChartComponent({ metricData }: LineChartComponentProps) {
     if (!metricData.recentValues?.length) return <p>Loading…</p>;
@@ -33,8 +23,11 @@ export function LineChartComponent({ metricData }: LineChartComponentProps) {
                 <XAxis dataKey="timestamp" />
                 <Label value="Time (sec)" offset={0} position="centerBottom" />
                 <YAxis />
-                <Tooltip />
-                <ValidLine isInsideThreshold={metricData.isInsideThreshold} />
+                <Tooltip content={(props) => (
+                    <CustomTooltip {...props} isInsideThreshold={metricData.isInsideThreshold} />
+                )} />
+                <Line type="monotone" dataKey="value" stroke="#8884d8"
+                    dot={{r:4,  fill: "#4444ff", strokeWidth:1}} />
             </LineChart>
         </ResponsiveContainer>
     )

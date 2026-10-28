@@ -22,7 +22,6 @@ export class AuditLogService {
             newThreshHoldValues
         );
         this.auditLogs.push(newAuditLog);
-        console.log(this.auditLogs);
         return this.auditLogs;
     }
 }
