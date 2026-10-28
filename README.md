@@ -1,6 +1,4 @@
 # Bioreactor Telemetry Dashboard
-The project is 85% complete. The only functionality that I didn't manage to implement on time, is the Threshold Configuration Form 
-in the Next.js Frontend Application. 
 
 ## Prerequisites
 
