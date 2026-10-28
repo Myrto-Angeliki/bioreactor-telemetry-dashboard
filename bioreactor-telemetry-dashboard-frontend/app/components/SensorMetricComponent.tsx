@@ -52,7 +52,7 @@ export default function SensorMetricComponent({ metricName, timestamp, value, th
     }, [metricName, timestamp, value, threshold])
 
     return (
-        <div className="grid  gap-1 pb-8">
+        <div className="grid  gap-1 p-8 border-2 border-olive-800 rounded-md mb-4">
             <h3>Sensor Metrics for {metricName}</h3>
             <div className=
                 {`${ showWarning ? 'visible' : 'invisible' } 

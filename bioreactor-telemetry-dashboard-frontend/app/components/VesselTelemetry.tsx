@@ -25,10 +25,12 @@ const getThreshHoldByName = (thresholds: Thresholds | undefined, metricName: str
 }
 
 export default function VesselTelemetry(props: VesselTelemetryProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
     if (props.thresholds == undefined)
         return <p>404: Thresholds not found</p>
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    
     return (
         <>
             <div className="text-right">
