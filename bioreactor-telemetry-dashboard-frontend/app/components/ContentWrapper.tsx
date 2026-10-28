@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Sidebar from "./sidebar/SideBar";
 import TelemetryDataGrid from "./TelemetryDataGrid";
-import { Thresholds } from "../utils/custom-types";
-import { UpdateThresholdsModal } from "./update-thresholds/UpdateThresholdsModal";
+import { Thresholds, VESSEL_COUNT } from "../utils/custom-types";
+import { fetchData } from "../utils/helper-funcs";
 
 function returnCurrentTime(): number {
     const num: number = new Date().getTime()
@@ -13,6 +13,7 @@ function returnCurrentTime(): number {
 
 export function ContentWrapper() {
     const [startTime, setStartTime] = useState(0);
+    const [thresholdsToEdit, setThresholdsToEdit] = useState<Thresholds>();
 
     useEffect(() => {
         const initStartTime = async () => {
@@ -28,9 +29,11 @@ export function ContentWrapper() {
                 Welcome to the Bioreactor Telemetry Dashboard
             </h1>
             <div>
-                <Sidebar />
-                <TelemetryDataGrid 
-                    startTime={returnCurrentTime()} 
+                <Sidebar thresholdsToEdit={thresholdsToEdit} />
+                <TelemetryDataGrid
+                    startTime={returnCurrentTime()}
+                    thresholdsToEdit={thresholdsToEdit}
+                    setThresholdsToEdit={setThresholdsToEdit}
                 />
             </div>
         </>

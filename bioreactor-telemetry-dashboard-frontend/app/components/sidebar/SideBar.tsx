@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { AuditLogs } from '@/app/utils/custom-types';
+import { AuditLogs, Thresholds } from '@/app/utils/custom-types';
 import { fetchData } from '@/app/utils/helper-funcs';
 import { AuditLog } from './AuditLog';
 import './Sidebar.css';
-import { json } from 'stream/consumers';
 
-export default function Sidebar() {
+
+
+
+export default function Sidebar({thresholdsToEdit}: {thresholdsToEdit: Thresholds | undefined}) {
     const [isOpen, setIsOpen] = useState(false);
     const [auditLogs, setAuditLogs] = useState<AuditLogs[]>([]);
 
@@ -30,7 +32,7 @@ export default function Sidebar() {
             }
         }
         handleSidebar();
-    }, [isOpen]);
+    }, [isOpen, thresholdsToEdit]);
 
 
     return (

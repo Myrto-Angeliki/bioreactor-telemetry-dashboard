@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { metricNames, SensorMetric, Telemetry, Thresholds, VESSEL_COUNT } from "../utils/custom-types";
-import { delay, fetchData } from "../utils/helper-funcs";
+import { fetchData } from "../utils/helper-funcs";
 import VesselTelemetry from "./VesselTelemetry";
 
 function getVesselThresholds(allThresholds: Thresholds[],
@@ -20,14 +20,16 @@ function getVesselThresholds(allThresholds: Thresholds[],
 
 
 type TelemetryDataGridProps = {
-    startTime: number
+    startTime: number,
+    thresholdsToEdit: Thresholds | undefined,
+    setThresholdsToEdit: Dispatch<SetStateAction<Thresholds | undefined>>
 }
 
 export default function TelemetryDataGrid(props: TelemetryDataGridProps) {
     const [telemetryData, setTelemetryData] = useState<Telemetry[]>([]);
-    const [sensorMetrics, setSensorMetrics] = useState<SensorMetric[]>([]);
     const [allThresholds, setAllThresholds] = useState<Thresholds[]>([]);
-    const [thresholdsToEdit, setThresholdsToEdit] = useState<Thresholds>();
+    const [sensorMetrics, setSensorMetrics] = useState<SensorMetric[]>([]);
+    
 
     useEffect(() => {
         const fetchTelemetryData = async () => {
@@ -72,18 +74,18 @@ export default function TelemetryDataGrid(props: TelemetryDataGridProps) {
     }, []);
 
     useEffect(() => {
-        const fetchThresholdData = async () => {
-            const thresholdsByVessel: Thresholds[] = [];
-            for (let i = 0; i < VESSEL_COUNT; i++) {
-                const thresholds = await fetchData<Thresholds>(
-                    `http://localhost:3001/api/vessels/BIO-00${i + 1}/thresholds`);
-
-                thresholdsByVessel.push(thresholds);
+            const fetchThresholdData = async () => {
+                const thresholdsByVessel: Thresholds[] = [];
+                for (let i = 0; i < VESSEL_COUNT; i++) {
+                    const thresholds = await fetchData<Thresholds>(
+                        `http://localhost:3001/api/vessels/BIO-00${i + 1}/thresholds`);
+    
+                    thresholdsByVessel.push(thresholds);
+                }
+                setAllThresholds(thresholdsByVessel);
             }
-            setAllThresholds(thresholdsByVessel);
-        }
-        fetchThresholdData()
-    }, [thresholdsToEdit])
+            fetchThresholdData()
+        }, [props.thresholdsToEdit])
 
     return (
         <div>
@@ -99,8 +101,8 @@ export default function TelemetryDataGrid(props: TelemetryDataGridProps) {
                         <VesselTelemetry
                             thresholds={thresholdsTemp}
                             sensorMetrics={sensorMetrics}
-                            thresholdsToEdit={thresholdsToEdit}
-                            setThresholdsToEdit={setThresholdsToEdit}
+                            thresholdsToEdit={props.thresholdsToEdit}
+                            setThresholdsToEdit={props.setThresholdsToEdit}
                         />
                     </div>
                 );
